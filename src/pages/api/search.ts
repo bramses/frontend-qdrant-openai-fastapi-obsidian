@@ -14,13 +14,23 @@ const search = async (req: NextApiRequest, res: NextApiResponse) => {
 
   if (!query || !vault) {
     res.statusCode = 400;
-    res.json({ error: "Bad Request" });
+    res.json({
+      error: "Bad Request",
+      message: "Missing query or vault",
+      result: [],
+      obsidianURIS: [],
+    });
     return;
   }
 
   if (!req.headers.authorization) {
     res.statusCode = 401;
-    res.json({ error: "Unauthorized" });
+    res.json({
+      error: "Unauthorized",
+      result: [],
+      obsidianURIS: [],
+      message: "Missing Authorization header",
+    });
     return;
   }
 
@@ -38,10 +48,51 @@ const search = async (req: NextApiRequest, res: NextApiResponse) => {
     );
 
     const data = await yup.json();
-    res.status(200).json(data);
+    // console.log(data);
+
+    if (data.detail === "Invalid authentication credentials") {
+      // console.log("in 401");
+      res.statusCode = 401;
+      res.json({
+        error: "Unauthorized",
+        result: [],
+        obsidianURIS: [],
+        message: "Incorrect Token",
+      });
+      return;
+    }
+
+    if (!data.result) {
+      res.statusCode = 404;
+      res.json({
+        error: "Not Found",
+        result: [],
+        obsidianURIS: [],
+        message: "No results found",
+      });
+      return;
+    }
+
+    if (data.result.length === 0) {
+      res.statusCode = 200;
+      res.json({
+        error: "No Results",
+        result: [],
+        obsidianURIS: [],
+        message: "No Results",
+      });
+      return;
+    }
+
+    res.status(200).json({ error: null, message: null, ...data });
   } catch (err) {
     res.statusCode = 500;
-    res.json({ error: "Internal Server Error" });
+    res.json({
+      error: "Internal Server Error",
+      result: [],
+      obsidianURIS: [],
+      message: "Something went wrong. Try again later.",
+    });
   }
 };
 

@@ -1,13 +1,18 @@
 /* eslint-disable react/prop-types */
-// write a simple card component in chakra ui that has a filename and a clickable link to the obsidian uri
-
+import { Link, Box } from "@chakra-ui/react";
+import NextLink from "next/link";
 // Language: typescript
 
 export default function Card({ filename = "", obsidianURI = "" }) {
   return (
     <div>
-      <h1>{filename}</h1>
-      <a href={obsidianURI}>Link</a>
+      <Box borderWidth="1px" borderRadius="lg" overflow="hidden" p="6" my="2">
+        <Box mt="1" fontWeight="semibold" as="h4" lineHeight="tight">
+          <NextLink href={obsidianURI} passHref>
+            <Link>{filename}</Link>
+          </NextLink>
+        </Box>
+      </Box>
     </div>
   );
 }
